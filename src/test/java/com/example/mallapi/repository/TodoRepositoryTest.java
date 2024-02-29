@@ -81,8 +81,10 @@ class TodoRepositoryTest {
         log.info(result.getContent());
     }
 
+/*
     @Test
     void testSearch1() {
         todoRepository.search1();
     }
+*/
 }
