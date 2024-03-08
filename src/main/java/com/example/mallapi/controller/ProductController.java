@@ -1,7 +1,7 @@
 package com.example.mallapi.controller;
 
 import com.example.mallapi.dto.ProductDTO;
-import com.example.mallapi.util.CustomFileUtil;
+import com.example.mallapi.util.CustomFileUpload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -12,13 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private final CustomFileUtil customFileUtil;
+    private final CustomFileUpload customFileUpload;
 
     @PostMapping("/")
     public Map<String, String> register(ProductDTO productDTO) {
@@ -26,7 +26,7 @@ public class ProductController {
 
         List<MultipartFile> files = productDTO.getFiles();
 
-        List<String> uploadedFileNames = customFileUtil.saveFiles(files);
+        List<String> uploadedFileNames = customFileUpload.saveFiles(files);
         productDTO.setUploadedFileNames(uploadedFileNames);
 
         log.info("uploadedFileNames = {}", uploadedFileNames);
@@ -37,6 +37,6 @@ public class ProductController {
     @GetMapping("/view/{fileName}")
     public ResponseEntity<Resource> viewFile(@PathVariable("fileName") String fileName) {
         log.info("fileName = {}", fileName);
-        return customFileUtil.getFile(fileName);
+        return customFileUpload.getFile(fileName);
     }
 }

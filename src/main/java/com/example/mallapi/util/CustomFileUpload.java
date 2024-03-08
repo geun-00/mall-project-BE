@@ -24,9 +24,9 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomFileUtil {
+public class CustomFileUpload {
 
-    @Value("${update.path}")
+    @Value("${my.upload.path}")
     private String uploadPath;
 
     @PostConstruct
