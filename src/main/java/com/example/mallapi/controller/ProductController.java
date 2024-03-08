@@ -4,9 +4,9 @@ import com.example.mallapi.dto.ProductDTO;
 import com.example.mallapi.util.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,5 +32,11 @@ public class ProductController {
         log.info("uploadedFileNames = {}", uploadedFileNames);
 
         return Map.of("RESULT", "SUCCESS");
+    }
+
+    @GetMapping("/view/{fileName}")
+    public ResponseEntity<Resource> viewFile(@PathVariable("fileName") String fileName) {
+        log.info("fileName = {}", fileName);
+        return customFileUtil.getFile(fileName);
     }
 }
