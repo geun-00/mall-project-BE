@@ -3,6 +3,7 @@ package com.example.mallapi.repository;
 import com.example.mallapi.domain.Todo;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,65 +11,64 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Log4j2
+@Transactional
 class TodoRepositoryTest {
 
     @Autowired TodoRepository todoRepository;
 
+    @BeforeEach
+    void insert() {
+        for (int i = 1; i <= 100; i++) {
+            Todo todo = Todo.builder()
+                    .title("Title " + i)
+                    .content("Content " + i)
+                    .dueDate(LocalDate.now())
+                    .build();
+
+            todoRepository.save(todo);
+        }
+    }
     @Test
-    void test1() {
+    void test() {
         Assertions.assertNotNull(todoRepository);
         log.info(todoRepository.getClass().getName());
     }
 
     @Test
-    void testInsert() {
-        Todo todo = Todo.builder()
-                        .title("Title")
-                        .content("Content...")
-                        .dueDate(LocalDate.of(2024, 2, 29))
-                        .build();
-
-        Todo result = todoRepository.save(todo);
-
-        assertThat(todo).isEqualTo(result);
-        log.info("result={}", result);
-    }
-
-    @Test
     void testRead() {
-        Long tno = 1L;
-        Optional<Todo> result = todoRepository.findById(tno);
+        Todo result = todoRepository.findById(1L).get();
 
-        Todo todo = result.orElseThrow();
-
-        log.info("todo={}", todo);
-        assertThat(todo).isNotNull();
+        assertThat(result.getTitle()).isEqualTo("Title 1");
+        assertThat(result.getContent()).isEqualTo("Content 1");
+        assertThat(result.isComplete()).isFalse();
+        assertThat(result.getDueDate()).isToday();
     }
 
     @Test
+//    @Transactional
     void testUpdate() {
-        Long tno = 1L;
-        Optional<Todo> result = todoRepository.findById(tno);
+        Optional<Todo> result = todoRepository.findById(1L);
 
-        Todo todo = result.orElseThrow();
+        if (result.isPresent()) {
+            Todo todo = result.get();
+            todo.changeTitle("Update Title");
+            todo.changeContent("Update Content");
+            todo.changeComplete(true);
 
-        todo.changeTitle("Update Title");
-        todo.changeContent("Update Content");
-        todo.changeComplete(true);
-
-        log.info("result={}", result);
-        assertThat(todo.getTitle()).isEqualTo("Update Title");
-        assertThat(todo.getContent()).isEqualTo("Update Content");
-        assertThat(todo.isComplete()).isTrue();
+            assertThat(todo.getTitle()).isEqualTo("Update Title");
+            assertThat(todo.getContent()).isEqualTo("Update Content");
+            assertThat(todo.isComplete()).isTrue();
+        }
     }
 
     @Test
@@ -76,9 +76,13 @@ class TodoRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("tno").descending());
         Page<Todo> result = todoRepository.findAll(pageable);
 
-        log.info(result.getTotalElements());
+        assertThat(result.getTotalElements()).isEqualTo(100L);
+        assertThat(result.getTotalPages()).isEqualTo(10);
+        assertThat(result.isFirst()).isTrue();
+        assertThat(result.hasNext()).isTrue();
 
-        log.info(result.getContent());
+        List<Todo> content = result.getContent();
+        assertThat(content.size()).isEqualTo(10);
     }
 
 /*
