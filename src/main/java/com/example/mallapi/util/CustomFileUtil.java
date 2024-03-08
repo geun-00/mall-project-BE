@@ -2,7 +2,8 @@ package com.example.mallapi.util;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,12 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
-@Log4j2
 @RequiredArgsConstructor
 public class CustomFileUtil {
 
-    @Value("${org.update.path}")
+    @Value("${update.path}")
     private String uploadPath;
 
     @PostConstruct
@@ -46,13 +47,25 @@ public class CustomFileUtil {
         List<String> uploadNames = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String savedNames = getSavedNames(file);
+            String savedName = getSavedNames(file);
 
-            Path savePath = Paths.get(uploadPath, savedNames);
+            Path savePath = Paths.get(uploadPath, savedName);
 
             try {
-                Files.copy(file.getInputStream(), savePath);
-                uploadNames.add(savedNames);
+                Files.copy(file.getInputStream(), savePath); //원본 파일 업로드
+
+                String contentType = file.getContentType();
+
+                if (contentType != null && contentType.startsWith("image")) {
+                    //이미지 파일이면 썸네일 대상
+                    Path thumbnailPath = Paths.get(uploadPath, "th_" + savedName);
+
+                    Thumbnails.of(savePath.toFile())
+                              .size(200, 200)
+                              .toFile(thumbnailPath.toFile());
+
+                }
+                uploadNames.add(savedName);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -5,7 +5,6 @@ spring:
     username: apidbuser
     password: apidbuser
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: create
     properties:
@@ -17,7 +16,12 @@ spring:
       max-request-size: 30MB
       max-file-size: 10MB
 
-org.update.path: upload
+update.path: upload
+logging:
+  level:
+    org:
+      hibernate:
+        sql: debug
 ---
 spring:
   config:
