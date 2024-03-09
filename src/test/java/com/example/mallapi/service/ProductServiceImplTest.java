@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -25,6 +28,25 @@ class ProductServiceImplTest {
 
         // then
         log.info("responseDTO = {}", responseDTO.getDtoList());
+    }
+
+    @Test
+    void testRegister() {
+        // given
+        ProductDTO productDTO = ProductDTO.builder()
+                                          .pName("새로운 상품")
+                                          .pDesc("신규 추가 상품입니다.")
+                                          .price(1000)
+                                          .build();
+
+        productDTO.setUploadedFileNames(
+                List.of(
+                        UUID.randomUUID().toString().substring(0, 8) + "_Test1.jpg",
+                        UUID.randomUUID().toString().substring(0, 8) + "_Test2.jpg"
+                ));
+        // when
+        productService.register(productDTO);
+        // then
     }
 
 }
