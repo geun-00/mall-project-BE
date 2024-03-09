@@ -1,12 +1,18 @@
 package com.example.mallapi.repository;
 
 import com.example.mallapi.domain.Product;
+import com.example.mallapi.dto.PageRequestDTO;
+import com.example.mallapi.repository.search.ProductSearch;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -26,17 +32,22 @@ class ProductRepositoryTest {
     @Autowired
     EntityManager em;
 
+    @Autowired
+    ProductSearch productSearch;
+
     @BeforeEach
     void test() {
-        Product product = Product.builder()
-                                 .pName("Test name")
-                                 .pDesc("Test Desc")
-                                 .price(1000)
-                                 .build();
-        product.addImageString(UUID.randomUUID().toString().substring(0, 8) + "_IMAGE1.jpg");
-        product.addImageString(UUID.randomUUID().toString().substring(0, 8) + "_IMAGE2.jpg");
+        for (int i = 1; i <= 10; i++) {
+            Product product = Product.builder()
+                    .pName("Test name " + i)
+                    .pDesc("Test Desc " + i)
+                    .price(1000)
+                    .build();
+            product.addImageString(UUID.randomUUID().toString().substring(0, 8) + "_IMAGE1.jpg");
+            product.addImageString(UUID.randomUUID().toString().substring(0, 8) + "_IMAGE2.jpg");
 
-        productRepository.save(product);
+            productRepository.save(product);
+        }
     }
 
     /**
@@ -90,5 +101,28 @@ class ProductRepositoryTest {
 
             em.flush();
         }
+    }
+
+    @Test
+    void testList() {
+        // given
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("pno").descending());
+        // when
+        Page<Object[]> result = productRepository.selectList(pageable);
+        // then
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getTotalElements()).isEqualTo(10);
+        assertThat(result.isFirst()).isTrue();
+        assertThat(result.hasNext()).isFalse();
+        assertThat(result.hasPrevious()).isFalse();
+    }
+
+    @Test
+    void testSearch() {
+        // given
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+        // when
+        productSearch.searchList(pageRequestDTO);
+        // then
     }
 }
