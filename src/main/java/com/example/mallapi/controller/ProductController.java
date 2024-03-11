@@ -60,7 +60,13 @@ public class ProductController {
 
         log.info("uploadFileNames = {}", uploadFileNames);
         Long pno = productService.register(productDTO);
-        return Map.of("RESULT", pno);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return Map.of("result", pno);
     }
 
     @GetMapping("/{pno}")
@@ -94,12 +100,22 @@ public class ProductController {
         List<String> oldFileNames = oldProductDTO.getUploadedFileNames();
         if (oldFileNames != null && !oldFileNames.isEmpty()) {
             List<String> removeFiles = oldFileNames.stream()
-                                                    .filter(fileName -> !uploadedFileNames.contains(fileName))
-                                                    .toList();
+                    .filter(fileName -> !uploadedFileNames.contains(fileName))
+                    .toList();
 
             customFileUpload.deleteFiles(removeFiles);
         }
 
         return Map.of("RESULT", "SUCCESS");
     }
+
+    @DeleteMapping("/{pno}")
+    public Map<String, String> remove(@PathVariable("pno") Long pno) {
+        List<String> oldFileNames = productService.get(pno).getUploadedFileNames();
+        productService.remove(pno);
+        customFileUpload.deleteFiles(oldFileNames);
+
+        return Map.of("RESULT", "SUCCESS");
+    }
+
 }
