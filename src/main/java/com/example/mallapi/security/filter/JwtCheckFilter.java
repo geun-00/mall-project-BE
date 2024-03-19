@@ -45,6 +45,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         try {
             String authHeader = request.getHeader("Authorization");
             String accessToken = authHeader.substring(7);
+            log.info("accessToken = {}", accessToken);
             Map<String, Object> claims = JWTUtil.validateToken(accessToken);
 
             log.info("claims = {}", claims);

@@ -1,5 +1,6 @@
 package com.example.mallapi.controller;
 
+import com.example.mallapi.Const.JwtConst;
 import com.example.mallapi.util.CustomJWTException;
 import com.example.mallapi.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.Map;
+
+import static com.example.mallapi.Const.JwtConst.*;
 
 @Slf4j
 @RestController
@@ -56,7 +59,7 @@ public class ApiRefreshController {
         try {
             JWTUtil.validateToken(token);
         } catch (CustomJWTException e) {
-            if (e.getMessage().equals("Expired")) {
+            if (e.getMessage().equals(EXPIRED_EX)) {
                 return true;
             }
         }

@@ -10,6 +10,8 @@ import java.sql.Date;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
+import static com.example.mallapi.Const.JwtConst.*;
+
 @Slf4j
 public class JWTUtil {
 
@@ -44,19 +46,19 @@ public class JWTUtil {
                     .getBody();
 
         } catch (MalformedJwtException malformedJwtException) {
-            throw new CustomJWTException("Malformed");
+            throw new CustomJWTException(MALFORMED_EX);
 
         } catch (ExpiredJwtException expiredJwtException) {
-            throw new CustomJWTException("Expired");
+            throw new CustomJWTException(EXPIRED_EX);
 
         } catch (InvalidClaimException invalidClaimException) {
-            throw new CustomJWTException("Invalid");
+            throw new CustomJWTException(INVALID_EX);
 
         } catch (JwtException jwtException) {
-            throw new CustomJWTException("JWTError");
+            throw new CustomJWTException(JWT_EX);
 
         } catch (Exception e) {
-            throw new CustomJWTException("Error");
+            throw new CustomJWTException(ERROR);
         }
         return claim;
     }
