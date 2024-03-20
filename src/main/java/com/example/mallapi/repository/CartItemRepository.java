@@ -21,7 +21,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             "left join p.imageList pi " +
             "where " +
             "pi.ord = 0 " +
-            "and mc.owner.email = :email order by ci.cino desc")
+            "or mc.owner.email = :email order by ci.cino desc")
     List<CartItemListDTO> getItemOfCartDTOByEmail(@Param("email") String email);
 
     //이메일, 상품 번호로 해당 상품이 장바구니 아이템으로 존재하는지 확인 필요
@@ -39,7 +39,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             "inner join Cart mc on ci.cart = mc " +
             "left join Product p on ci.product = p " +
             "left join p.imageList pi " +
-            "where pi.ord = 0 and " +
+            "where pi.ord = 0 or " +
             "mc.cno = :cno " +
             "order by ci.cino desc ")
     List<CartItemListDTO> getItemsOfCartDTOByCart(@Param("cno") Long cno);
